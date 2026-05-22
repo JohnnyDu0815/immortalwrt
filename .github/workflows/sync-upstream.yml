@@ -2,7 +2,7 @@ name: Sync Upstream ImmortalWrt
 
 on:
   schedule:
-    - cron: '0 11 * * *'      # 每天北京时间中午 12:00 自动同步
+    - cron: '0 15 * * *'      # 每天北京时间中午 12:00 自动同步
   workflow_dispatch:         # 允许手动触发
 
 jobs:
