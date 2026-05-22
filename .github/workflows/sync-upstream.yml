@@ -1,0 +1,28 @@
+name: Sync Upstream ImmortalWrt
+
+on:
+  schedule:
+    - cron: '0 11 * * *'      # 每天北京时间中午 12:00 自动同步
+  workflow_dispatch:         # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.fork }}   # 只在 Fork 仓库执行
+
+    steps:
+      - name: Checkout your repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: openwrt-25.12          # 你的主要分支
+
+      - name: Sync from upstream
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          upstream_repository: immortalwrt/immortalwrt
+          upstream_branch: openwrt-25.12        # 上游对应分支
+          target_branch: openwrt-25.12
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 可选：如果冲突太多，可以改成 rebase 方式
+          # sync_method: rebase
