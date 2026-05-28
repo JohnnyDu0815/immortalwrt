@@ -2,7 +2,7 @@ name: Sync Upstream ImmortalWrt
 
 on:
   schedule:
-    - cron: '0 13 * * *'     # 每天北京时间 13:00 同步
+    - cron: '0 13 * * *'
   workflow_dispatch:
 
 jobs:
@@ -15,11 +15,19 @@ jobs:
         with:
           ref: openwrt-25.12
           fetch-depth: 0
+          token: ${{ secrets.UPSTREAM_TOKEN }}   # 使用 PAT
 
       - name: Sync from upstream
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
-        with:
-          target_sync_branch: openwrt-25.12
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
-          upstream_sync_repo: immortalwrt/immortalwrt
-          upstream_sync_branch: openwrt-25.12
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git remote add upstream https://github.com/immortalwrt/immortalwrt.git || true
+          git fetch upstream openwrt-25.12
+          
+          git merge --no-ff upstream/openwrt-25.12 -m "Merge upstream openwrt-25.12 ($(date +%Y-%m-%d))" || {
+            echo "❌ 有合并冲突，需要手动解决！"
+            exit 1
+          }
+          
+          git push origin openwrt-25.12
